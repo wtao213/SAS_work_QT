@@ -1,0 +1,30 @@
+proc format;      
+	picture kilo (round fuzz=0)
+/* 		low-high='009K' (prefix='$' mult=.001) */
+		low	  -< 0 	   = '009K'  (prefix='-$' mult=.001)
+		0     -< 1000  = '009K'  (prefix='$' mult=.001)
+		1000  - high   = '0,000,000K' (prefix='$' mult=.001);
+	
+	picture mill (round fuzz=0)
+		-1000000000 -< -1000000 ='0000M' (prefix='-$' mult=.000001)
+		-1000000 	-< -50000 	= '00M' (prefix='-$' mult=0.00001)
+		-50000 		-< 0		= '09M' (prefix='-$' mult=0.001)
+		0 			-< 50000 	= '09M' (prefix='$' mult=0.001)
+		50000		-< 1000000 	= '00M' (prefix='$' mult=0.00001)
+		1000000		-< 1000000000='0000M' (prefix='$' mult=.000001);
+
+run;
+
+
+ods graphics on / width=6in;
+proc sgplot data=WORK.CUS2(where=(MTD <= 36))
+;
+   	title "KYC Income by group";
+	histogram Income_2  /group=target_qwp transparency=0.4 scale=percent binwidth=5000;
+	xaxis grid  values=(0 to 350000 by 50000)	 label="KYC Income" ;
+	yaxis grid ;
+	refline 100000 / axis=x lineattrs=(color=red thickness=2px pattern=ShortDashDot);
+	format Income_2  kilo.;
+run;
+title;
+ods graphics / reset=all;
